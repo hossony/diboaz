@@ -1,0 +1,30 @@
+---
+import type { GetStaticPaths } from 'astro';
+import Base from '../../layouts/Base.astro';
+import PostSummary from '../../components/PostSummary.astro';
+import { getPosts } from '../../lib/utils';
+import { SITE } from '../../site.config';
+
+export const getStaticPaths = (async ({ paginate }) => {
+  const posts = await getPosts();
+  return paginate(posts, { pageSize: SITE.postsPerPage });
+}) satisfies GetStaticPaths;
+
+const { page } = Astro.props;
+const title = page.currentPage === 1 ? 'Diário da oficina' : `Diário da oficina — página ${page.currentPage}`;
+---
+<Base
+  title={title}
+  description="Diário de um luthier brasileiro: construção de violinos, verniz, madeiras, regulagem e a tradição da luteria italiana, contados de dentro da oficina."
+  breadcrumbs={[{ name: 'Diário', url: '/blog/' }]}
+>
+  <h1>Diário da oficina</h1>
+  <p class="muted">Anotações, processos e instrumentos saindo da bancada.</p>
+  <hr />
+  {page.data.map((p) => <PostSummary post={p} />)}
+  <nav class="pager" aria-label="Paginação">
+    {page.url.prev ? <a class="newer" href={page.url.prev}>← Postagens mais recentes</a> : <span></span>}
+    <a class="home" href="/">Página inicial</a>
+    {page.url.next ? <a class="older" href={page.url.next}>Postagens mais antigas →</a> : <span></span>}
+  </nav>
+</Base>

@@ -1,0 +1,61 @@
+---
+import Base from '../layouts/Base.astro';
+import PostSummary from '../components/PostSummary.astro';
+import WorkCard from '../components/WorkCard.astro';
+import { getPosts, getTrabalhos } from '../lib/utils';
+import { SITE, CONTACT } from '../site.config';
+
+const allPosts = await getPosts();
+const posts = allPosts.slice(0, SITE.postsPerPage);
+const hasOlder = allPosts.length > SITE.postsPerPage;
+const all = await getTrabalhos();
+const works = [...all.filter((w) => w.data.featured), ...all.filter((w) => !w.data.featured)].slice(0, 3);
+const heroImg = works[0]?.data.cover ?? '/uploads/exemplos/madeira-1.svg';
+const wa = `https://wa.me/${CONTACT.whatsapp}?text=${encodeURIComponent(CONTACT.whatsappMessage)}`;
+---
+<Base
+  description={SITE.description}
+  jsonLd={[{
+    '@context': 'https://schema.org',
+    '@type': 'Blog',
+    name: `${SITE.name} — Diário da oficina`,
+    url: `${SITE.url}/blog/`,
+    inLanguage: SITE.lang,
+    author: { '@type': 'Person', name: SITE.author },
+  }]}
+>
+  <section class="hero">
+    <div>
+      <div class="eyebrow">Luthier no Brasil · Escola italiana</div>
+      <h1>Instrumentos de arco feitos à mão, <em>na tradição de Cremona</em></h1>
+      <p>
+        Violinos, violas e violoncelos construídos, envernizados e regulados um a um.
+        Aqui publico cada trabalho da oficina — da madeira em branco ao instrumento pronto para tocar.
+      </p>
+      <div class="actions">
+        <a class="btn" href="/trabalhos/">Ver trabalhos</a>
+        <a class="btn ghost" href={wa} target="_blank" rel="noopener">Encomendar</a>
+      </div>
+    </div>
+    <div class="frame"><img src={heroImg} alt="Instrumento da Luteria Di Boaz" width="600" height="750" fetchpriority="high" /></div>
+  </section>
+
+  {works.length > 0 && (
+    <section aria-labelledby="t-trab" style="margin-bottom: 3rem">
+      <div class="section-title"><h2 id="t-trab">Trabalhos recentes</h2><a href="/trabalhos/">Galeria completa →</a></div>
+      <div class="works-grid">{works.map((w) => <WorkCard work={w} />)}</div>
+    </section>
+  )}
+
+  <section aria-labelledby="t-diario">
+    <div class="section-title"><h2 id="t-diario">Diário da oficina</h2><a href="/blog/">Todas as postagens →</a></div>
+    {posts.map((p) => <PostSummary post={p} />)}
+    {posts.length === 0 && <p class="muted">Nenhuma postagem ainda.</p>}
+  </section>
+
+  <nav class="pager" aria-label="Paginação">
+    <span></span>
+    <a class="home" href="/arquivo/">Arquivo</a>
+    {hasOlder ? <a class="older" href="/blog/2/">Postagens mais antigas →</a> : <span></span>}
+  </nav>
+</Base>

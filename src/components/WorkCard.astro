@@ -1,0 +1,13 @@
+---
+import type { Trabalho } from '../lib/utils';
+import { slugify } from '../lib/utils';
+const { work } = Astro.props as { work: Trabalho };
+const d = work.data;
+---
+<a class="work-card" href={`/trabalhos/${work.id}/`} data-instrument={d.instrument}>
+  <div class="frame">
+    <img src={d.cover} alt={d.coverAlt ?? `${d.instrument} — ${d.title}`} loading="lazy" decoding="async" width="600" height="750" />
+  </div>
+  <h3>{d.title}</h3>
+  <div class="meta">{d.instrument} · {d.date.getUTCFullYear()} · <span class={`badge ${slugify(d.status)}`}>{d.status}</span></div>
+</a>

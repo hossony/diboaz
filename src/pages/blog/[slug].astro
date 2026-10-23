@@ -1,0 +1,78 @@
+---
+import { render } from 'astro:content';
+import Base from '../../layouts/Base.astro';
+import Share from '../../components/Share.astro';
+import Comments from '../../components/Comments.astro';
+import { getPosts, longDate, slugify, readingTime } from '../../lib/utils';
+import { SITE } from '../../site.config';
+
+export async function getStaticPaths() {
+  const posts = await getPosts();
+  return posts.map((post, i) => ({
+    params: { slug: post.id },
+    props: { post, newer: posts[i - 1], older: posts[i + 1] },
+  }));
+}
+
+const { post, newer, older } = Astro.props;
+const { Content } = await render(post);
+const d = post.data;
+const url = `/blog/${post.id}/`;
+const image = d.cover ?? SITE.ogImage;
+
+const articleLd = {
+  '@context': 'https://schema.org',
+  '@type': 'BlogPosting',
+  headline: d.title,
+  description: d.description,
+  image: new URL(image, SITE.url).href,
+  datePublished: d.date.toISOString(),
+  dateModified: (d.updated ?? d.date).toISOString(),
+  author: { '@type': 'Person', name: d.author, url: `${SITE.url}/sobre/` },
+  publisher: { '@id': `${SITE.url}/#luteria` },
+  mainEntityOfPage: new URL(url, SITE.url).href,
+  keywords: d.tags.join(', '),
+  inLanguage: SITE.lang,
+  wordCount: post.body?.split(/\s+/).length,
+};
+---
+<Base
+  title={d.title}
+  description={d.description}
+  image={image}
+  imageAlt={d.coverAlt ?? d.title}
+  type="article"
+  publishedTime={d.date}
+  modifiedTime={d.updated}
+  tags={d.tags}
+  breadcrumbs={[{ name: 'Diário', url: '/blog/' }, { name: d.title, url }]}
+  jsonLd={[articleLd]}
+>
+  <article class="post">
+    <nav class="breadcrumb" aria-label="Você está em"><a href="/">Início</a> › <a href="/blog/">Diário</a></nav>
+    <h3 class="date-header"><time datetime={d.date.toISOString()}>{longDate(d.date)}</time></h3>
+    <h1 class="post-title">{d.title}</h1>
+    {d.cover && (
+      <figure class="post-cover"><img src={d.cover} alt={d.coverAlt ?? d.title} width="1200" height="675" fetchpriority="high" /></figure>
+    )}
+    <div class="prose"><Content /></div>
+
+    <div class="post-footer">
+      <span>Postado por <a href="/sobre/" rel="author">{d.author}</a></span>
+      <span>{readingTime(post.body)} min de leitura</span>
+      {d.updated && <span>Atualizado em {longDate(d.updated)}</span>}
+      {d.tags.length > 0 && (
+        <span class="labels">Marcadores: {d.tags.map((t, i) => (<>{i > 0 && ', '}<a href={`/marcadores/${slugify(t)}/`} rel="tag">{t}</a></>))}</span>
+      )}
+    </div>
+
+    <Share title={d.title} url={url} />
+
+    <nav class="post-nav" aria-label="Outras postagens">
+      {newer ? <a class="prev" href={`/blog/${newer.id}/`}><small>← Mais recente</small>{newer.data.title}</a> : <span></span>}
+      {older ? <a class="next" href={`/blog/${older.id}/`}><small>Mais antiga →</small>{older.data.title}</a> : <span></span>}
+    </nav>
+
+    <Comments />
+  </article>
+</Base>

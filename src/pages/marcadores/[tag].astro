@@ -1,0 +1,25 @@
+---
+import Base from '../../layouts/Base.astro';
+import PostSummary from '../../components/PostSummary.astro';
+import { getPosts, tagCounts, slugify } from '../../lib/utils';
+
+export async function getStaticPaths() {
+  const posts = await getPosts();
+  return tagCounts(posts).map((t) => ({
+    params: { tag: t.slug },
+    props: { name: t.name, posts: posts.filter((p) => p.data.tags.some((x) => slugify(x) === t.slug)) },
+  }));
+}
+const { name, posts } = Astro.props;
+---
+<Base
+  title={`${name} — postagens`}
+  description={`Postagens do diário da Luteria Di Boaz com o marcador "${name}".`}
+  breadcrumbs={[{ name: 'Diário', url: '/blog/' }, { name, url: Astro.url.pathname }]}
+>
+  <p class="muted">Mostrando postagens com o marcador</p>
+  <h1>{name}</h1>
+  <hr />
+  {posts.map((p) => <PostSummary post={p} />)}
+  <nav class="pager"><span></span><a class="home" href="/blog/">Todas as postagens</a><span></span></nav>
+</Base>

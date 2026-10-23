@@ -1,0 +1,21 @@
+---
+import Base from '../layouts/Base.astro';
+import { getPosts, groupArchive, shortDate } from '../lib/utils';
+const archive = groupArchive(await getPosts());
+---
+<Base title="Arquivo do diário" description="Todas as postagens do diário da Luteria Di Boaz, organizadas por ano e mês." breadcrumbs={[{ name: 'Arquivo', url: '/arquivo/' }]}>
+  <h1>Arquivo</h1>
+  {archive.map((y) => (
+    <section>
+      <h2>{y.year}</h2>
+      {y.months.map((m) => (
+        <>
+          <h3 style="text-transform: capitalize">{m.name}</h3>
+          <ul>
+            {m.items.map((p) => <li><a href={`/blog/${p.id}/`}>{p.data.title}</a> <span class="muted">— {shortDate(p.data.date)}</span></li>)}
+          </ul>
+        </>
+      ))}
+    </section>
+  ))}
+</Base>

@@ -1,0 +1,112 @@
+---
+import Base from '../layouts/Base.astro';
+import { SITE } from '../site.config';
+
+const faq = [
+  {
+    q: 'O que é luteria?',
+    a: 'Luteria é o ofício de construir, regular e restaurar instrumentos de corda. O profissional é o luthier (ou luteiro). Na luteria de arco, o foco são violinos, violas, violoncelos e contrabaixos.',
+  },
+  {
+    q: 'Por que Cremona é tão importante para a luteria?',
+    a: 'Foi em Cremona, no norte da Itália, que Andrea Amati definiu a forma do violino moderno no século XVI. Depois vieram Antonio Stradivari e Giuseppe Guarneri “del Gesù”, cujos instrumentos ainda hoje são referência. Em 2012, o saber-fazer tradicional dos violinos de Cremona foi reconhecido pela UNESCO como Patrimônio Cultural Imaterial da Humanidade.',
+  },
+  {
+    q: 'Quais madeiras são usadas em um violino tradicional?',
+    a: 'Na tradição italiana, o tampo é feito de abeto (picea abies), leve e ressonante, e o fundo, as faixas e o braço de bordo (acer), muitas vezes flamado. O espelho costuma ser de ébano.',
+  },
+  {
+    q: 'Como escolher um luthier no Brasil?',
+    a: 'Veja trabalhos anteriores, peça para ouvir ou tocar instrumentos feitos pelo luthier, pergunte sobre as madeiras, o modelo e o verniz, e prefira quem explica com transparência cada etapa da construção ou do reparo.',
+  },
+  {
+    q: 'Qual a diferença entre um violino de fábrica e um violino artesanal?',
+    a: 'O violino artesanal é construído e ajustado individualmente: espessuras do tampo e do fundo trabalhadas à mão, verniz aplicado em camadas e regulagem feita para aquele instrumento. Isso costuma resultar em mais projeção, equilíbrio entre as cordas e longevidade.',
+  },
+];
+
+const faqLd = {
+  '@context': 'https://schema.org',
+  '@type': 'FAQPage',
+  mainEntity: faq.map((f) => ({ '@type': 'Question', name: f.q, acceptedAnswer: { '@type': 'Answer', text: f.a } })),
+};
+const articleLd = {
+  '@context': 'https://schema.org',
+  '@type': 'Article',
+  headline: 'A tradição da luteria italiana',
+  description: 'De Amati a Stradivari: a história da luteria de Cremona, o método da forma interna, as madeiras e o verniz.',
+  author: { '@type': 'Person', name: SITE.author },
+  publisher: { '@id': `${SITE.url}/#luteria` },
+  inLanguage: SITE.lang,
+};
+---
+<Base
+  title="A tradição da luteria italiana — de Cremona ao Brasil"
+  description="A história da luteria italiana: Amati, Stradivari e Guarneri, o método cremonês da forma interna, madeiras, verniz e como essa tradição vive no trabalho de um luthier no Brasil."
+  breadcrumbs={[{ name: 'A Tradição', url: '/tradicao/' }]}
+  jsonLd={[articleLd, faqLd]}
+>
+  <article>
+    <h1>A tradição da luteria italiana</h1>
+    <p class="muted"><em>De Cremona ao Brasil — o que guia cada instrumento da Di Boaz.</em></p>
+    <div class="prose">
+      <p>
+        Poucos objetos atravessaram cinco séculos quase sem mudar de forma. O violino que conhecemos hoje
+        ganhou suas proporções no norte da Itália, no século XVI, e desde então a cidade de <strong>Cremona</strong>
+        é sinônimo de luteria. Entender essa tradição é entender por que um instrumento feito à mão soa,
+        envelhece e se comporta de um jeito único.
+      </p>
+
+      <h2>Os grandes mestres de Cremona</h2>
+      <p>
+        <strong>Andrea Amati</strong> estabeleceu o modelo do violino, da viola e do violoncelo. Sua família formou
+        gerações de luthiers — entre eles, possivelmente, <strong>Antonio Stradivari</strong> (1644–1737), cujos
+        instrumentos são até hoje o padrão de referência em som e beleza. Ao lado dele, <strong>Giuseppe Guarneri
+        “del Gesù”</strong> criou violinos de voz potente e caráter marcante, preferidos por muitos solistas.
+      </p>
+      <p>
+        Em 2012, o <em>saper fare liutario</em> de Cremona foi inscrito pela UNESCO na lista do Patrimônio
+        Cultural Imaterial da Humanidade — um reconhecimento de que esse conhecimento é transmitido de mestre para
+        aprendiz, na bancada.
+      </p>
+
+      <h2>O método cremonês: a forma interna</h2>
+      <p>
+        Na escola italiana, o instrumento é construído sobre uma <strong>forma interna</strong>: um molde de madeira em
+        torno do qual se curvam e colam as faixas laterais, presas aos blocos e contrafaixas. Só depois o tampo e o
+        fundo, escavados e graduados à mão, são fechados sobre esse contorno. O método dá liberdade ao luthier e
+        imprime personalidade em cada peça.
+      </p>
+
+      <h2>As madeiras</h2>
+      <ul>
+        <li><strong>Abeto</strong> para o tampo: leve, rígido no sentido das fibras, responsável pela vibração.</li>
+        <li><strong>Bordo</strong> para fundo, faixas e braço: denso, reflete o som e, quando flamado, revela o desenho que tanto encanta.</li>
+        <li><strong>Ébano</strong> para espelho e acessórios: duro e resistente ao desgaste.</li>
+      </ul>
+      <p>Antes de virar instrumento, a madeira precisa de anos de secagem natural — a paciência faz parte do material.</p>
+
+      <h2>O verniz</h2>
+      <p>
+        O verniz protege a madeira, influencia o som e dá ao instrumento a sua cor e profundidade. Na tradição italiana
+        ele é aplicado em finas camadas sobre um fundo preparado, com tempo de cura entre elas. É uma das etapas que
+        mais exige olhar e mão de artesão — e uma das que mais gosto de mostrar aqui no <a href="/blog/">diário</a>.
+      </p>
+
+      <h2>A tradição viva no Brasil</h2>
+      <p>
+        A luteria brasileira tem nomes e oficinas de família que mantêm esse saber vivo longe da Itália. A Di Boaz nasce
+        dessa linhagem: aprendizado na oficina, respeito aos métodos clássicos e o desejo de seguir estudando na fonte.
+        Veja os <a href="/trabalhos/">trabalhos</a> e acompanhe o processo de cada instrumento.
+      </p>
+
+      <h2>Perguntas frequentes</h2>
+      {faq.map((f) => (
+        <>
+          <h3>{f.q}</h3>
+          <p>{f.a}</p>
+        </>
+      ))}
+    </div>
+  </article>
+</Base>

@@ -1,0 +1,36 @@
+---
+import { SITE, NAV } from '../site.config';
+import FHole from './FHole.astro';
+
+const path = Astro.url.pathname;
+const isActive = (href: string) => (href === '/' ? path === '/' : path.startsWith(href));
+---
+<header class="masthead">
+  <a class="brand" href="/" aria-label={`${SITE.name} — página inicial`}>
+    <FHole class="mark" />
+    <span class="title">Luteria <em>Di Boaz</em></span>
+    <span class="tagline">{SITE.tagline}</span>
+  </a>
+</header>
+
+<nav class="navbar" id="navbar" aria-label="Navegação principal">
+  <div class="wrap">
+    <button class="nav-toggle" type="button" aria-expanded="false" aria-controls="menu">
+      <span class="bars" aria-hidden="true"></span> Menu
+    </button>
+    <ul id="menu">
+      {NAV.map((item) => (
+        <li><a href={item.href} aria-current={isActive(item.href) ? 'page' : undefined}>{item.label}</a></li>
+      ))}
+    </ul>
+  </div>
+</nav>
+
+<script>
+  const nav = document.getElementById('navbar');
+  const btn = nav?.querySelector('.nav-toggle');
+  btn?.addEventListener('click', () => {
+    const open = nav!.classList.toggle('open');
+    btn.setAttribute('aria-expanded', String(open));
+  });
+</script>

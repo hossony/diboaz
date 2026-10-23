@@ -1,0 +1,77 @@
+---
+import { SITE, CONTACT } from '../site.config';
+import { getPosts, groupArchive, tagCounts } from '../lib/utils';
+
+const posts = await getPosts();
+const recent = posts.slice(0, 5);
+const archive = groupArchive(posts);
+const tags = tagCounts(posts);
+const wa = `https://wa.me/${CONTACT.whatsapp}?text=${encodeURIComponent(CONTACT.whatsappMessage)}`;
+const currentYear = archive[0]?.year;
+---
+<aside aria-label="Barra lateral">
+  <section class="widget profile">
+    <h2>O luthier</h2>
+    <img src="/uploads/perfil.svg" alt={`${SITE.author}, luthier da ${SITE.name}`} width="96" height="96" loading="lazy" />
+    <span class="name">{SITE.author}</span>
+    <p>Luthier formado na oficina da família, construindo e envernizando instrumentos de arco na tradição italiana.</p>
+    <a href="/sobre/">Ver perfil completo →</a>
+  </section>
+
+  <section class="widget">
+    <h2>Pesquisar</h2>
+    <form class="search-form" action="/busca/" method="get" role="search">
+      <label class="sr-only" for="q-side">Pesquisar no site</label>
+      <input id="q-side" type="search" name="q" placeholder="violino, verniz…" />
+      <button type="submit">Buscar</button>
+    </form>
+  </section>
+
+  <section class="widget">
+    <h2>Postagens recentes</h2>
+    <ul>
+      {recent.map((p) => <li><a href={`/blog/${p.id}/`}>{p.data.title}</a></li>)}
+    </ul>
+  </section>
+
+  <section class="widget cta-box">
+    <h2>Encomende o seu</h2>
+    <p>Violinos, violas e violoncelos feitos sob medida, regulagem e restauração.</p>
+    <a class="btn light" href={wa} target="_blank" rel="noopener">Falar no WhatsApp</a>
+  </section>
+
+  <section class="widget archive">
+    <h2>Arquivo do diário</h2>
+    {archive.map((y) => (
+      <details open={y.year === currentYear}>
+        <summary>{y.year} <span class="count">({y.count})</span></summary>
+        {y.months.map((m, i) => (
+          <details open={y.year === currentYear && i === 0}>
+            <summary style="text-transform: capitalize">{m.name} <span class="count">({m.items.length})</span></summary>
+            <ul>
+              {m.items.map((p) => <li><a href={`/blog/${p.id}/`}>{p.data.title}</a></li>)}
+            </ul>
+          </details>
+        ))}
+      </details>
+    ))}
+  </section>
+
+  {tags.length > 0 && (
+    <section class="widget">
+      <h2>Marcadores</h2>
+      <div class="tags-cloud">
+        {tags.map((t) => <a href={`/marcadores/${t.slug}/`}>{t.name} <span class="count">({t.count})</span></a>)}
+      </div>
+    </section>
+  )}
+
+  <section class="widget">
+    <h2>Acompanhe</h2>
+    <ul>
+      <li><a href="/rss.xml">Assinar o diário (RSS)</a></li>
+      <li><a href="/trabalhos/">Galeria de trabalhos</a></li>
+      <li><a href="/tradicao/">A tradição da luteria italiana</a></li>
+    </ul>
+  </section>
+</aside>

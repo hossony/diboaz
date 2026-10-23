@@ -1,0 +1,50 @@
+---
+import Base from '../layouts/Base.astro';
+---
+<Base title="Pesquisar" description="Pesquise postagens e trabalhos da Luteria Di Boaz." noindex>
+  <h1>Pesquisar</h1>
+  <form class="search-form" action="/busca/" method="get" role="search" style="max-width: 520px; margin-bottom: 1.6rem">
+    <label class="sr-only" for="q">Termo de busca</label>
+    <input id="q" type="search" name="q" placeholder="Ex.: verniz, violoncelo, Cremona" autofocus />
+    <button type="submit">Buscar</button>
+  </form>
+  <p id="search-status" class="muted" role="status"></p>
+  <ul id="results" style="list-style: none; padding: 0"></ul>
+
+  <script>
+    const norm = (s: string) => s.normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase();
+    const q = new URLSearchParams(location.search).get('q')?.trim() ?? '';
+    const input = document.getElementById('q') as HTMLInputElement;
+    const list = document.getElementById('results')!;
+    const status = document.getElementById('search-status')!;
+    input.value = q;
+    if (q) {
+      const data: { title: string; url: string; text: string; kind: string; date: string }[] = await fetch('/search.json').then((r) => r.json());
+      const terms = norm(q).split(/\s+/).filter(Boolean);
+      const hits = data
+        .map((d) => {
+          const t = norm(d.title), b = norm(d.text);
+          const score = terms.reduce((s, w) => s + (t.includes(w) ? 5 : 0) + (b.includes(w) ? 1 : 0), 0);
+          const all = terms.every((w) => t.includes(w) || b.includes(w));
+          return { ...d, score: all ? score : 0 };
+        })
+        .filter((d) => d.score > 0)
+        .sort((a, b) => b.score - a.score);
+      status.textContent = hits.length ? `${hits.length} resultado(s) para “${q}”` : `Nenhum resultado para “${q}”.`;
+      for (const h of hits) {
+        const li = document.createElement('li');
+        li.className = 'post';
+        li.style.marginBottom = '1.6rem';
+        const small = document.createElement('div');
+        small.className = 'date-header';
+        small.textContent = `${h.kind} · ${h.date}`;
+        const a = document.createElement('a');
+        a.href = h.url; a.textContent = h.title;
+        const h2 = document.createElement('h2'); h2.className = 'post-title'; h2.style.fontSize = '1.6rem'; h2.append(a);
+        const p = document.createElement('p'); p.textContent = h.text.slice(0, 220) + '…';
+        li.append(small, h2, p);
+        list.append(li);
+      }
+    }
+  </script>
+</Base>

@@ -1,0 +1,34 @@
+---
+import { COMMENTS, CONTACT } from '../site.config';
+const enabled = Boolean(COMMENTS.repo && COMMENTS.repoId && COMMENTS.categoryId);
+const wa = `https://wa.me/${CONTACT.whatsapp}`;
+---
+<section class="comments" id="comentarios" aria-labelledby="comments-title">
+  <h2 id="comments-title">Comentários</h2>
+  {enabled ? (
+    <script
+      is:inline
+      src="https://giscus.app/client.js"
+      data-repo={COMMENTS.repo}
+      data-repo-id={COMMENTS.repoId}
+      data-category={COMMENTS.category}
+      data-category-id={COMMENTS.categoryId}
+      data-mapping="pathname"
+      data-strict="0"
+      data-reactions-enabled="1"
+      data-emit-metadata="0"
+      data-input-position="top"
+      data-theme="light"
+      data-lang={COMMENTS.lang}
+      data-loading="lazy"
+      crossorigin="anonymous"
+      async
+    ></script>
+  ) : (
+    <p class="fallback">
+      Gostou deste trabalho ou tem alguma dúvida? Mande sua mensagem pelo{' '}
+      <a href={wa} target="_blank" rel="noopener">WhatsApp</a> ou por{' '}
+      <a href={`mailto:${CONTACT.email}`}>e-mail</a> — respondo pessoalmente.
+    </p>
+  )}
+</section>

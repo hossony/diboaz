@@ -1,0 +1,136 @@
+---
+import { SITE, CONTACT, SOCIAL } from '../site.config';
+
+export interface Props {
+  title?: string;
+  description?: string;
+  image?: string;
+  imageAlt?: string;
+  type?: 'website' | 'article' | 'profile';
+  publishedTime?: Date;
+  modifiedTime?: Date;
+  tags?: string[];
+  noindex?: boolean;
+  breadcrumbs?: { name: string; url: string }[];
+  jsonLd?: Record<string, unknown>[];
+}
+
+const {
+  title,
+  description = SITE.description,
+  image = SITE.ogImage,
+  imageAlt = SITE.name,
+  type = 'website',
+  publishedTime,
+  modifiedTime,
+  tags = [],
+  noindex = false,
+  breadcrumbs = [],
+  jsonLd = [],
+} = Astro.props;
+
+const fullTitle = title ? `${title} | ${SITE.name}` : `${SITE.name} — ${SITE.tagline}`;
+const canonical = new URL(Astro.url.pathname, SITE.url).href;
+const imageUrl = new URL(image, SITE.url).href;
+const keywords = [...new Set([...tags, ...SITE.keywords])].join(', ');
+
+const sameAs = Object.values(SOCIAL).filter(Boolean);
+
+// Dados estruturados do negócio (aparecem em todas as páginas → SEO local)
+const business = {
+  '@context': 'https://schema.org',
+  '@type': ['LocalBusiness', 'Store'],
+  '@id': `${SITE.url}/#luteria`,
+  name: SITE.name,
+  alternateName: SITE.shortName,
+  description: SITE.description,
+  slogan: SITE.tagline,
+  url: SITE.url,
+  logo: `${SITE.url}/favicon.svg`,
+  image: imageUrl,
+  email: CONTACT.email,
+  telephone: CONTACT.whatsapp && !/^5500+$/.test(CONTACT.whatsapp) ? `+${CONTACT.whatsapp}` : undefined,
+  founder: { '@type': 'Person', name: SITE.author, jobTitle: 'Luthier' },
+  address: {
+    '@type': 'PostalAddress',
+    addressLocality: SITE.city,
+    addressRegion: SITE.state,
+    addressCountry: SITE.country,
+  },
+  areaServed: { '@type': 'Country', name: 'Brasil' },
+  knowsAbout: ['Luteria', 'Construção de violinos', 'Verniz de instrumentos', 'Luteria italiana', 'Restauração de instrumentos de corda'],
+  makesOffer: [
+    'Violinos artesanais',
+    'Violas de arco',
+    'Violoncelos',
+    'Regulagem de instrumentos de corda',
+    'Restauração e verniz',
+  ].map((name) => ({ '@type': 'Offer', itemOffered: { '@type': 'Service', name } })),
+  sameAs: sameAs.length ? sameAs : undefined,
+};
+
+const website = {
+  '@context': 'https://schema.org',
+  '@type': 'WebSite',
+  '@id': `${SITE.url}/#site`,
+  url: SITE.url,
+  name: SITE.name,
+  inLanguage: SITE.lang,
+  publisher: { '@id': `${SITE.url}/#luteria` },
+  potentialAction: {
+    '@type': 'SearchAction',
+    target: `${SITE.url}/busca/?q={search_term_string}`,
+    'query-input': 'required name=search_term_string',
+  },
+};
+
+const crumbs =
+  breadcrumbs.length > 0
+    ? {
+        '@context': 'https://schema.org',
+        '@type': 'BreadcrumbList',
+        itemListElement: [{ name: 'Início', url: '/' }, ...breadcrumbs].map((b, i) => ({
+          '@type': 'ListItem',
+          position: i + 1,
+          name: b.name,
+          item: new URL(b.url, SITE.url).href,
+        })),
+      }
+    : null;
+
+const schemas = [business, website, crumbs, ...jsonLd].filter(Boolean);
+---
+
+<title>{fullTitle}</title>
+<meta name="description" content={description} />
+<meta name="keywords" content={keywords} />
+<meta name="author" content={SITE.author} />
+<link rel="canonical" href={canonical} />
+<meta name="robots" content={noindex ? 'noindex, follow' : 'index, follow, max-image-preview:large'} />
+
+<meta name="geo.region" content={`${SITE.country}-${SITE.state}`} />
+<meta name="geo.placename" content={SITE.city} />
+
+<!-- Open Graph (WhatsApp, Facebook, LinkedIn) -->
+<meta property="og:site_name" content={SITE.name} />
+<meta property="og:locale" content={SITE.locale} />
+<meta property="og:type" content={type} />
+<meta property="og:title" content={title ?? SITE.name} />
+<meta property="og:description" content={description} />
+<meta property="og:url" content={canonical} />
+<meta property="og:image" content={imageUrl} />
+<meta property="og:image:alt" content={imageAlt} />
+{publishedTime && <meta property="article:published_time" content={publishedTime.toISOString()} />}
+{modifiedTime && <meta property="article:modified_time" content={modifiedTime.toISOString()} />}
+{type === 'article' && tags.map((t) => <meta property="article:tag" content={t} />)}
+
+<!-- Twitter / X -->
+<meta name="twitter:card" content="summary_large_image" />
+<meta name="twitter:title" content={title ?? SITE.name} />
+<meta name="twitter:description" content={description} />
+<meta name="twitter:image" content={imageUrl} />
+
+<link rel="alternate" type="application/rss+xml" title={`${SITE.name} — Diário`} href="/rss.xml" />
+<link rel="sitemap" href="/sitemap-index.xml" />
+
+{schemas.map((s) => <script type="application/ld+json" set:html={JSON.stringify(s)} />)}

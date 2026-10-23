@@ -1,0 +1,104 @@
+# ==========================================================
+#  Painel de publicação (Sveltia CMS) — /admin
+#  Sem banco de dados: cada postagem vira um arquivo .md no
+#  GitHub; a hospedagem (Vercel/Netlify/Cloudflare) refaz o site
+#  sozinha em ~1 minuto após você clicar em "Publicar".
+# ==========================================================
+
+backend:
+  name: github
+  repo: SEU-USUARIO/luteria-di-boaz   # <-- troque pelo seu usuário/repositório
+  branch: main
+  commit_messages:
+    create: 'Nova publicação: {{slug}}'
+    update: 'Atualiza: {{slug}}'
+    delete: 'Remove: {{slug}}'
+    uploadMedia: 'Envia imagem: {{path}}'
+    deleteMedia: 'Remove imagem: {{path}}'
+
+site_url: https://www.diboaz.com.br
+display_url: https://www.diboaz.com.br
+logo_url: /favicon.svg
+
+media_folder: public/uploads
+public_folder: /uploads
+
+# Fotos do celular são convertidas para WebP e redimensionadas
+# automaticamente antes de subir (site mais rápido = melhor SEO).
+media_libraries:
+  default:
+    config:
+      transformations:
+        raster_image:
+          format: webp
+          quality: 82
+          width: 2000
+          height: 2000
+
+slug:
+  encoding: ascii
+  clean_accents: true
+  sanitize_replacement: '-'
+
+collections:
+  - name: posts
+    label: Diário (postagens)
+    label_singular: Postagem
+    folder: src/content/posts
+    create: true
+    slug: '{{slug}}'
+    extension: md
+    format: frontmatter
+    sortable_fields: [date, title]
+    summary: '{{title}} — {{date | date("DD/MM/YYYY")}}'
+    fields:
+      - { label: Título, name: title, widget: string }
+      - { label: Resumo (aparece no Google e na listagem — até 200 caracteres), name: description, widget: text, pattern: ['^.{20,200}$', 'Entre 20 e 200 caracteres'] }
+      - { label: Data, name: date, widget: datetime, format: 'YYYY-MM-DD', time_format: false, date_format: 'DD/MM/YYYY' }
+      - { label: Imagem de capa, name: cover, widget: image, required: false }
+      - { label: Descrição da capa (acessibilidade/SEO), name: coverAlt, widget: string, required: false }
+      - { label: Marcadores, name: tags, widget: list, required: false, hint: 'Ex.: Verniz, Violino, Processo' }
+      - { label: Autor, name: author, widget: string, default: Eliel Filho }
+      - { label: Rascunho (não publicar ainda), name: draft, widget: boolean, default: false }
+      - { label: Texto, name: body, widget: markdown }
+
+  - name: trabalhos
+    label: Trabalhos (instrumentos)
+    label_singular: Trabalho
+    folder: src/content/trabalhos
+    create: true
+    slug: '{{slug}}'
+    extension: md
+    format: frontmatter
+    sortable_fields: [date, title, instrument]
+    summary: '{{title}} · {{instrument}} · {{status}}'
+    fields:
+      - { label: Nome do trabalho, name: title, widget: string }
+      - { label: Resumo (até 200 caracteres), name: description, widget: text }
+      - { label: Data, name: date, widget: datetime, format: 'YYYY-MM-DD', time_format: false, date_format: 'DD/MM/YYYY' }
+      - label: Instrumento / tipo
+        name: instrument
+        widget: select
+        options: [Violino, Viola, Violoncelo, Contrabaixo, Restauração, Regulagem, Outro]
+        default: Violino
+      - label: Situação
+        name: status
+        widget: select
+        options: [Acervo, Disponível, Vendido, Sob encomenda, Em construção]
+        default: Acervo
+      - { label: Foto principal, name: cover, widget: image }
+      - { label: Descrição da foto principal, name: coverAlt, widget: string, required: false }
+      - label: Galeria de fotos
+        name: gallery
+        widget: list
+        required: false
+        fields:
+          - { label: Foto, name: src, widget: image }
+          - { label: Legenda, name: alt, widget: string, required: false }
+      - { label: Modelo (ex. Stradivari 1715), name: model, widget: string, required: false }
+      - { label: Madeiras, name: woods, widget: string, required: false }
+      - { label: Verniz, name: varnish, widget: string, required: false }
+      - { label: Valor (opcional — ex. "Sob consulta"), name: price, widget: string, required: false }
+      - { label: Destacar na página inicial, name: featured, widget: boolean, default: false }
+      - { label: Rascunho (não publicar ainda), name: draft, widget: boolean, default: false }
+      - { label: Texto / história do instrumento, name: body, widget: markdown }

@@ -1,0 +1,62 @@
+---
+import Base from '../../layouts/Base.astro';
+import WorkCard from '../../components/WorkCard.astro';
+import { getTrabalhos } from '../../lib/utils';
+import { SITE } from '../../site.config';
+
+const works = await getTrabalhos();
+const instruments = [...new Set(works.map((w) => w.data.instrument))];
+
+const listLd = {
+  '@context': 'https://schema.org',
+  '@type': 'CollectionPage',
+  name: `Trabalhos — ${SITE.name}`,
+  url: `${SITE.url}/trabalhos/`,
+  mainEntity: {
+    '@type': 'ItemList',
+    itemListElement: works.map((w, i) => ({
+      '@type': 'ListItem',
+      position: i + 1,
+      url: `${SITE.url}/trabalhos/${w.id}/`,
+      name: w.data.title,
+    })),
+  },
+};
+---
+<Base
+  title="Trabalhos — violinos, violas e violoncelos artesanais"
+  description="Galeria de instrumentos de arco feitos à mão pela Luteria Di Boaz: violinos, violas, violoncelos, verniz, regulagem e restauração, na tradição da luteria italiana."
+  breadcrumbs={[{ name: 'Trabalhos', url: '/trabalhos/' }]}
+  jsonLd={[listLd]}
+  sidebar={false}
+>
+  <h1>Trabalhos da oficina</h1>
+  <p class="muted" style="max-width: 62ch">
+    Cada instrumento tem sua história: a escolha da madeira, o modelo, as camadas de verniz, o som.
+    Clique em uma peça para ver fotos e detalhes.
+  </p>
+
+  {instruments.length > 1 && (
+    <div class="filters" role="group" aria-label="Filtrar por instrumento">
+      <button type="button" aria-pressed="true" data-filter="*">Todos</button>
+      {instruments.map((i) => <button type="button" aria-pressed="false" data-filter={i}>{i}</button>)}
+    </div>
+  )}
+
+  <div class="works-grid" id="works">
+    {works.map((w) => <WorkCard work={w} />)}
+  </div>
+  {works.length === 0 && <p>Em breve, os primeiros trabalhos.</p>}
+
+  <script>
+    const btns = document.querySelectorAll<HTMLButtonElement>('[data-filter]');
+    const cards = document.querySelectorAll<HTMLElement>('#works .work-card');
+    btns.forEach((b) =>
+      b.addEventListener('click', () => {
+        btns.forEach((x) => x.setAttribute('aria-pressed', String(x === b)));
+        const f = b.dataset.filter;
+        cards.forEach((c) => (c.hidden = f !== '*' && c.dataset.instrument !== f));
+      })
+    );
+  </script>
+</Base>

@@ -1,0 +1,62 @@
+---
+import Base from '../layouts/Base.astro';
+import { SITE, CONTACT } from '../site.config';
+const wa = `https://wa.me/${CONTACT.whatsapp}?text=${encodeURIComponent(CONTACT.whatsappMessage)}`;
+const personLd = {
+  '@context': 'https://schema.org',
+  '@type': 'ProfilePage',
+  mainEntity: {
+    '@type': 'Person',
+    name: SITE.author,
+    jobTitle: 'Luthier',
+    worksFor: { '@id': `${SITE.url}/#luteria` },
+    knowsAbout: ['Luteria', 'Construção de violinos', 'Verniz', 'Violoncelo', 'Luteria italiana'],
+    homeLocation: { '@type': 'Place', name: `${SITE.city}, ${SITE.state}, Brasil` },
+    image: `${SITE.url}/uploads/perfil.svg`,
+  },
+};
+---
+<Base
+  title="Sobre o luthier"
+  description={`Conheça ${SITE.author}, luthier da Luteria Di Boaz: formação na oficina da família, construção de instrumentos de arco e o estudo da tradição da luteria italiana.`}
+  type="profile"
+  breadcrumbs={[{ name: 'Sobre', url: '/sobre/' }]}
+  jsonLd={[personLd]}
+>
+  <h1>Sobre a Di Boaz</h1>
+  <div class="prose">
+    <p>
+      A Luteria Di Boaz nasceu dentro de uma oficina de família. Cresci entre formões, plainas e o cheiro de
+      verniz na luthieria do meu pai, a <strong>Hossony</strong>, fundada em 1989 em {SITE.city}–{SITE.state}, onde há mais
+      de três décadas se constroem violinos, violas, violoncelos e contrabaixos sob encomenda.
+    </p>
+    <p>
+      Foi ali que aprendi o ofício na prática — e onde construí, ao lado dele, o meu próprio violoncelo.
+      A Di Boaz é a continuação desse legado com assinatura própria: instrumentos de arco feitos à mão,
+      um a um, guiados pelos métodos da <a href="/tradicao/">luteria italiana clássica</a>.
+    </p>
+
+    <h2>O nome</h2>
+    <p>
+      <em>Di Boaz</em> — “de Boaz”, à maneira italiana de assinar a origem de uma obra. O nome homenageia meu filho
+      e carrega a ideia de que cada instrumento é feito para atravessar gerações.
+    </p>
+
+    <h2>O que faço</h2>
+    <ul>
+      <li><strong>Construção</strong> de violinos, violas e violoncelos a partir de madeiras selecionadas (abeto e bordo europeus).</li>
+      <li><strong>Acabamento e verniz</strong> de instrumentos em branco, com camadas aplicadas à mão.</li>
+      <li><strong>Regulagem</strong>: ajuste de cavalete, alma, espelho e cordas para tirar o melhor som do instrumento.</li>
+      <li><strong>Restauração</strong> e pequenos reparos em instrumentos de corda friccionada.</li>
+    </ul>
+
+    <h2>O caminho</h2>
+    <p>
+      Sigo estudando a tradição de Cremona — o berço de Amati, Stradivari e Guarneri — e me preparo para
+      aprofundar a formação na própria Itália. Este site é o meu diário de bancada: aqui publico cada etapa,
+      cada instrumento terminado e o que aprendo pelo caminho.
+    </p>
+    <blockquote>Um bom instrumento não é apenas construído: é afinado com paciência, camada por camada.</blockquote>
+  </div>
+  <p><a class="btn" href={wa} target="_blank" rel="noopener">Conversar sobre uma encomenda</a></p>
+</Base>

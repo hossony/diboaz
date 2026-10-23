@@ -1,0 +1,79 @@
+---
+import Base from '../layouts/Base.astro';
+import { SITE, CONTACT, SOCIAL } from '../site.config';
+const wa = `https://wa.me/${CONTACT.whatsapp}?text=${encodeURIComponent(CONTACT.whatsappMessage)}`;
+const useForm = Boolean(CONTACT.formEndpoint);
+const waDisplay = CONTACT.whatsapp.replace(/^55(\d{2})(\d{4,5})(\d{4})$/, '($1) $2-$3');
+---
+<Base
+  title="Contato e encomendas"
+  description={`Fale com a Luteria Di Boaz: encomenda de violinos, violas e violoncelos artesanais, regulagem e restauração. Oficina em ${SITE.city}–${SITE.state}.`}
+  breadcrumbs={[{ name: 'Contato', url: '/contato/' }]}
+  jsonLd={[{ '@context': 'https://schema.org', '@type': 'ContactPage', name: 'Contato', url: `${SITE.url}/contato/` }]}
+  sidebar={false}
+>
+  <h1>Contato e encomendas</h1>
+  <p class="muted" style="max-width: 60ch">
+    Quer encomendar um instrumento, regular o seu ou tirar uma dúvida? Escreva — respondo pessoalmente.
+  </p>
+
+  <div class="contact-grid" style="margin-top: 2rem">
+    <form
+      class="form"
+      id="contact-form"
+      method="post"
+      action={useForm ? CONTACT.formEndpoint : `mailto:${CONTACT.email}`}
+      enctype={useForm ? undefined : 'text/plain'}
+    >
+      <label>Seu nome <input name="nome" required autocomplete="name" /></label>
+      <label>E-mail <input name="email" type="email" required autocomplete="email" /></label>
+      <label>WhatsApp (opcional) <input name="telefone" type="tel" autocomplete="tel" /></label>
+      <label>Assunto
+        <select name="assunto">
+          <option>Encomenda de instrumento</option>
+          <option>Regulagem</option>
+          <option>Restauração / reparo</option>
+          <option>Instrumento disponível</option>
+          <option>Outro assunto</option>
+        </select>
+      </label>
+      <label>Mensagem <textarea name="mensagem" required></textarea></label>
+      <input type="text" name="_gotcha" style="display:none" tabindex="-1" autocomplete="off" />
+      <div><button class="btn" type="submit">Enviar mensagem</button></div>
+      <p class="muted" id="form-status" role="status" style="font-size: 0.9rem"></p>
+    </form>
+
+    <div class="contact-card">
+      <h2 style="margin-top: 0">Fale direto</h2>
+      <dl>
+        <dt>WhatsApp</dt>
+        <dd><a href={wa} target="_blank" rel="noopener">{waDisplay}</a></dd>
+        <dt>E-mail</dt>
+        <dd><a href={`mailto:${CONTACT.email}`}>{CONTACT.email}</a></dd>
+        <dt>Oficina</dt>
+        <dd>{SITE.city} – {SITE.state}, Brasil<br /><span class="muted">Visitas com hora marcada.</span></dd>
+        {SOCIAL.instagram && (<><dt>Instagram</dt><dd><a href={SOCIAL.instagram} target="_blank" rel="me noopener">Acompanhe a bancada</a></dd></>)}
+      </dl>
+      <p style="margin: 1.2rem 0 0"><a class="btn" href={wa} target="_blank" rel="noopener">Abrir WhatsApp</a></p>
+    </div>
+  </div>
+
+  {useForm && (
+    <script>
+      const form = document.getElementById('contact-form') as HTMLFormElement;
+      const status = document.getElementById('form-status')!;
+      form.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        status.textContent = 'Enviando…';
+        try {
+          const r = await fetch(form.action, { method: 'POST', body: new FormData(form), headers: { Accept: 'application/json' } });
+          if (!r.ok) throw new Error();
+          form.reset();
+          status.textContent = 'Mensagem enviada! Responderei em breve.';
+        } catch {
+          status.textContent = 'Não foi possível enviar agora. Tente pelo WhatsApp ou e-mail ao lado.';
+        }
+      });
+    </script>
+  )}
+</Base>

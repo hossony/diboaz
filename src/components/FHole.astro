@@ -1,0 +1,11 @@
+---
+// Marca da Di Boaz: um "efe" (abertura acústica do violino) estilizado.
+const { class: cls = '', title = '' } = Astro.props;
+---
+<svg class={cls} viewBox="0 0 24 48" fill="none" stroke="currentColor" aria-hidden={title ? undefined : 'true'} role={title ? 'img' : undefined}>
+  {title && <title>{title}</title>}
+  <circle cx="16" cy="6" r="3.2" fill="currentColor" stroke="none" />
+  <circle cx="8" cy="42" r="3.2" fill="currentColor" stroke="none" />
+  <path d="M16 6 C 4 14, 20 34, 8 42" stroke-width="2.4" stroke-linecap="round" />
+  <path d="M7.5 21.5 L12 19.5 M12 28.5 L16.5 26.5" stroke-width="1.6" stroke-linecap="round" />
+</svg>

@@ -1,0 +1,129 @@
+---
+import { render } from 'astro:content';
+import Base from '../../layouts/Base.astro';
+import Share from '../../components/Share.astro';
+import Comments from '../../components/Comments.astro';
+import { getTrabalhos, longDate, slugify } from '../../lib/utils';
+import { SITE, CONTACT } from '../../site.config';
+
+export async function getStaticPaths() {
+  const works = await getTrabalhos();
+  return works.map((work) => ({ params: { slug: work.id }, props: { work } }));
+}
+
+const { work } = Astro.props;
+const { Content } = await render(work);
+const d = work.data;
+const url = `/trabalhos/${work.id}/`;
+const images = [{ src: d.cover, alt: d.coverAlt ?? d.title }, ...d.gallery];
+const wa = `https://wa.me/${CONTACT.whatsapp}?text=${encodeURIComponent(`Olá! Tenho interesse no trabalho "${d.title}" que vi no site.`)}`;
+
+const ld = {
+  '@context': 'https://schema.org',
+  '@type': d.status === 'Disponível' ? 'Product' : 'VisualArtwork',
+  name: d.title,
+  description: d.description,
+  image: images.map((i) => new URL(i.src, SITE.url).href),
+  url: new URL(url, SITE.url).href,
+  ...(d.status === 'Disponível'
+    ? {
+        brand: { '@type': 'Brand', name: SITE.name },
+        category: d.instrument,
+        offers: {
+          '@type': 'Offer',
+          availability: 'https://schema.org/InStock',
+          priceCurrency: 'BRL',
+          ...(d.price && /\d/.test(d.price) ? { price: d.price.replace(/[^\d,]/g, '').replace(',', '.') } : {}),
+          seller: { '@id': `${SITE.url}/#luteria` },
+        },
+      }
+    : {
+        artform: d.instrument,
+        artMedium: d.woods,
+        creator: { '@type': 'Person', name: SITE.author },
+        dateCreated: d.date.toISOString().slice(0, 10),
+      }),
+};
+---
+<Base
+  title={`${d.title} — ${d.instrument} artesanal`}
+  description={d.description}
+  image={d.cover}
+  imageAlt={d.coverAlt ?? d.title}
+  type="article"
+  publishedTime={d.date}
+  tags={[d.instrument, 'luteria', d.model ?? ''].filter(Boolean)}
+  breadcrumbs={[{ name: 'Trabalhos', url: '/trabalhos/' }, { name: d.title, url }]}
+  jsonLd={[ld]}
+  sidebar={false}
+>
+  <nav class="breadcrumb" aria-label="Você está em"><a href="/">Início</a> › <a href="/trabalhos/">Trabalhos</a> › {d.instrument}</nav>
+
+  <div class="work-hero">
+    <div>
+      <button type="button" class="frame" data-lightbox={d.cover} data-caption={d.coverAlt ?? d.title} style="cursor: zoom-in; width: 100%">
+        <img src={d.cover} alt={d.coverAlt ?? d.title} width="800" height="1000" fetchpriority="high" />
+      </button>
+    </div>
+    <div>
+      <span class={`badge ${slugify(d.status)}`}>{d.status}</span>
+      <h1 style="margin-top: 0.5rem">{d.title}</h1>
+      <p class="muted">{d.description}</p>
+      <table class="specs">
+        <tbody>
+          <tr><th>Instrumento</th><td>{d.instrument}</td></tr>
+          {d.model && <tr><th>Modelo</th><td>{d.model}</td></tr>}
+          {d.woods && <tr><th>Madeiras</th><td>{d.woods}</td></tr>}
+          {d.varnish && <tr><th>Verniz</th><td>{d.varnish}</td></tr>}
+          <tr><th>Data</th><td>{longDate(d.date)}</td></tr>
+          {d.price && <tr><th>Valor</th><td>{d.price}</td></tr>}
+        </tbody>
+      </table>
+      <a class="btn" href={wa} target="_blank" rel="noopener">
+        {d.status === 'Disponível' ? 'Tenho interesse' : 'Quero um instrumento assim'}
+      </a>
+    </div>
+  </div>
+
+  <hr />
+  <div class="prose" style="max-width: 72ch; margin-inline: auto"><Content /></div>
+
+  {d.gallery.length > 0 && (
+    <section aria-label="Galeria de fotos">
+      <h2>Fotos</h2>
+      <div class="gallery">
+        {d.gallery.map((g) => (
+          <button type="button" data-lightbox={g.src} data-caption={g.alt ?? ''}>
+            <img src={g.src} alt={g.alt ?? d.title} loading="lazy" width="300" height="300" />
+          </button>
+        ))}
+      </div>
+    </section>
+  )}
+
+  <div style="max-width: 72ch; margin-inline: auto">
+    <Share title={d.title} url={url} />
+    <Comments />
+  </div>
+
+  <dialog class="lightbox" id="lightbox" aria-label="Foto ampliada">
+    <button type="button" aria-label="Fechar" data-close>×</button>
+    <img alt="" />
+    <p></p>
+  </dialog>
+
+  <script>
+    const dlg = document.getElementById('lightbox') as HTMLDialogElement;
+    const img = dlg.querySelector('img')!;
+    const cap = dlg.querySelector('p')!;
+    document.querySelectorAll<HTMLElement>('[data-lightbox]').forEach((el) =>
+      el.addEventListener('click', () => {
+        img.src = el.dataset.lightbox!;
+        img.alt = el.dataset.caption ?? '';
+        cap.textContent = el.dataset.caption ?? '';
+        dlg.showModal();
+      })
+    );
+    dlg.addEventListener('click', (e) => { if (e.target === dlg || (e.target as HTMLElement).dataset.close !== undefined) dlg.close(); });
+  </script>
+</Base>

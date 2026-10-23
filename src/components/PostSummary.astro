@@ -1,0 +1,30 @@
+---
+import type { Post } from '../lib/utils';
+import { longDate, slugify, readingTime } from '../lib/utils';
+
+interface Props { post: Post; showDate?: boolean; headingLevel?: 'h1' | 'h2'; }
+const { post, showDate = true } = Astro.props;
+const url = `/blog/${post.id}/`;
+const mins = readingTime(post.body);
+---
+<article class="post">
+  {showDate && <h3 class="date-header"><time datetime={post.data.date.toISOString()}>{longDate(post.data.date)}</time></h3>}
+  <h2 class="post-title"><a href={url}>{post.data.title}</a></h2>
+  {post.data.cover && (
+    <a href={url} class="post-cover" aria-hidden="true" tabindex="-1">
+      <img src={post.data.cover} alt={post.data.coverAlt ?? post.data.title} loading="lazy" decoding="async" width="1200" height="675" />
+    </a>
+  )}
+  <p>{post.data.description}</p>
+  <a class="more-link" href={url}>Continuar lendo</a>
+  <div class="post-footer">
+    <span>Postado por {post.data.author}</span>
+    <span>{mins} min de leitura</span>
+    <a href={`${url}#comentarios`}>Comentários</a>
+    {post.data.tags.length > 0 && (
+      <span class="labels">Marcadores: {post.data.tags.map((t, i) => (
+        <>{i > 0 && ', '}<a href={`/marcadores/${slugify(t)}/`} rel="tag">{t}</a></>
+      ))}</span>
+    )}
+  </div>
+</article>
