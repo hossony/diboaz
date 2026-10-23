@@ -7,7 +7,7 @@
 
 backend:
   name: github
-  repo: SEU-USUARIO/luteria-di-boaz   # <-- troque pelo seu usuário/repositório
+  repo: hossony/diboaz
   branch: main
   commit_messages:
     create: 'Nova publicação: {{slug}}'
@@ -16,8 +16,8 @@ backend:
     uploadMedia: 'Envia imagem: {{path}}'
     deleteMedia: 'Remove imagem: {{path}}'
 
-site_url: https://www.diboaz.com.br
-display_url: https://www.diboaz.com.br
+site_url: https://diboaz.vercel.app
+display_url: https://diboaz.vercel.app
 logo_url: /favicon.svg
 
 media_folder: public/uploads

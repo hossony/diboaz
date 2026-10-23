@@ -6,7 +6,7 @@
 
 export const SITE = {
   // Domínio final (sem barra no fim). Usado no sitemap, canonical e Open Graph.
-  url: 'https://www.diboaz.com.br',
+  url: 'https://diboaz.vercel.app',
 
   name: 'Luteria Di Boaz',
   shortName: 'Di Boaz',

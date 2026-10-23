@@ -3,7 +3,7 @@ import { defineConfig } from 'astro/config';
 import sitemap from '@astrojs/sitemap';
 
 // Mantenha igual a SITE.url em src/site.config.ts
-const SITE_URL = 'https://www.diboaz.com.br';
+const SITE_URL = 'https://diboaz.vercel.app';
 
 export default defineConfig({
   site: SITE_URL,
