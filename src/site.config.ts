@@ -46,9 +46,9 @@ export const SITE = {
 
 export const CONTACT = {
   // Troque pelos seus dados reais.
-  email: 'contato@diboaz.com.br',
+  email: 'elielfilholk@gmail.com',
   // Somente números, com DDI e DDD. Ex.: 5514999999999
-  whatsapp: '5500000000000',
+  whatsapp: '5514998233642',
   whatsappMessage: 'Olá! Vi o site da Luteria Di Boaz e gostaria de conversar sobre um instrumento.',
 
   // Formulário de contato sem servidor (opcional).
